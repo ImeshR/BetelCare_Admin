@@ -21,6 +21,18 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname()
   const { toast } = useToast()
 
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession()
+      if (!data.session) {
+        router.push("/")
+      }
+      setIsLoading(false)
+    }
+
+    checkSession()
+  }, [router])
+
   const handleSignOut = async () => {
     await supabase.auth.signOut()
     document.cookie = "supabase-auth-session=; path=/; max-age=0"
@@ -29,6 +41,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       description: "You have been successfully signed out",
     })
     router.push("/")
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+      </div>
+    )
   }
 
   const navItems = [
